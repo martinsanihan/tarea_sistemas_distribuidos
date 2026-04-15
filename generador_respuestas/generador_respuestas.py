@@ -1,5 +1,6 @@
 from statistics import mean
 import numpy as np
+import pandas as pd
 
 # Definimos una clase para almacenar los datos de cada edificación
 class Record:
