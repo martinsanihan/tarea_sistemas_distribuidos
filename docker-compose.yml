@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # El motor de almacenamiento (Redis)
+  cache_redis:
+    image: redis:latest
+    container_name: cache_redis
+    ports:
+      - "6379:6379"
+    # Aquí ya configuramos las políticas (LRU y 50mb)
+    command: redis-server --maxmemory 50mb --maxmemory-policy allkeys-lru 
+
+  # El motor de cálculo pesado (API Flask)
+  generador_respuestas:
+    build: ./generador_respuestas  # Le dice a Docker que busque el Dockerfile en esa carpeta
+    container_name: generador_respuestas
+    ports:
+      - "5000:5000"
+    depends_on:
+      - cache_redis 
+
+  # (API Flask)
+  sistema_cache:
+    build: ./sistema_cache 
+    container_name: sistema_cache
+    ports:
+      - "4000:4000" # Exponemos el puerto 4000 
+    depends_on:
+      - cache_redis
+      - generador_respuestas 
+      - almacenador_metricas
+  # El recolector de estadísticas
+  almacenador_metricas:
+    build: ./almacenador_metricas
+    container_name: almacenador_metricas
+    ports:
+      - "6000:6000"
+  # El generador de tráfico    
+  generador_trafico:
+    build: ./generador_trafico
+    container_name: generador_trafico
+    depends_on:
+      - sistema_cache
+    environment:
+      - DISTRIBUCION=zipf      # Cambia a "uniforme" para probar la otra distribución
+      - TASA_ESPERA=0.1        # 0.1 significa 10 peticiones por segundo. bajar este punto estresa más al sistema. subirlo lo hace más relajado.
+  
