@@ -19,7 +19,7 @@ def carga_datos(ruta_archivo):
     print(f"Cargando dataset desde {ruta_archivo} (esto puede tomar unos segundos)...")
     
     # Leemos el .csv.gz directamente. Ajusta los nombres de las columnas si tu CSV los tiene distintos.
-    df = pd.read_csv(ruta_archivo, compression='gzip')
+    df = pd.read_csv(ruta_dataset, compression='gzip')
 
     # Definimos las zonas con los bounding boxes (lat/lon) y un área precalculada en km2 aproximada
     zonas = {
@@ -129,7 +129,7 @@ def api_q2():
 
 if __name__ == '__main__':
     print("Iniciando Generador de Respuestas...")
-    ruta_dataset = '967_buildings.csv' 
+    ruta_dataset = '967_buildings.csv.gz' 
     
     try:
         # 1. Cargamos el dataset pesado EN MEMORIA una sola vez al arrancar
