@@ -1,6 +1,7 @@
 from statistics import mean
 import numpy as np
 import pandas as pd
+from flask import Flask, request, jsonify
 
 # Definimos una clase para almacenar los datos de cada edificación
 class Record:
@@ -13,8 +14,6 @@ class Record:
 # Simulamos los diccionarios globales donde se cargarán los datos precargados en memoria
 data = {}
 zone_area_km2 = {}
-
-ruta_archivo = "C:\Users\alang\Desktop\Sistemas dist"
 
 def carga_datos(ruta_archivo):
     print(f"Cargando dataset desde {ruta_archivo} (esto puede tomar unos segundos)...")
@@ -107,12 +106,39 @@ def q5_confidence_dist(zone_id, bins=5):
         for i in range(bins)
     ]
 
-if __name__ == "__main__":
-    print("¡Módulo del Generador de Respuestas en Python listo!")
+app = Flask(__name__)
+
+@app.route('/q1', methods=['GET'])
+def api_q1():
+    # Recibimos los parámetros de la URL (ej: /q1?zone_id=Z1&confidence_min=0.8)
+    zone_id = request.args.get('zone_id')
+    conf_min = float(request.args.get('confidence_min', 0.0))
     
-    # Ejemplo de cómo deberías estructurar la carga de datos (usando Pandas o CSV)
-    # data['Z1'] = [
-    #     Record(-33.430, -70.620, 120.5, 0.8),
-    #     Record(-33.435, -70.625, 85.0, 0.4)
-    # ]
-    # zone_area_km2['Z1'] = 15.5
+    resultado = q1_count(zone_id, conf_min)
+    return jsonify({"consulta": "Q1", "zona": zone_id, "resultado": resultado})
+
+@app.route('/q2', methods=['GET'])
+def api_q2():
+    zone_id = request.args.get('zone_id')
+    conf_min = float(request.args.get('confidence_min', 0.0))
+    
+    resultado = q2_area(zone_id, conf_min)
+    return jsonify({"consulta": "Q2", "zona": zone_id, "resultado": resultado})
+
+# Puedes replicar esta misma lógica para @app.route('/q3'), '/q4' y '/q5'
+
+if __name__ == '__main__':
+    print("Iniciando Generador de Respuestas...")
+    ruta_dataset = 'google_buildings_chile.csv.gz' 
+    
+    try:
+        # 1. Cargamos el dataset pesado EN MEMORIA una sola vez al arrancar
+        carga_datos(ruta_dataset)
+        print("Datos cargados. Levantando servidor API en el puerto 5000...")
+        
+        # 2. Levantamos el servidor para escuchar peticiones de la caché
+        # host='0.0.0.0' es crucial en Docker para que acepte conexiones externas al contenedor
+        app.run(host='0.0.0.0', port=5000)
+        
+    except FileNotFoundError:
+        print(f"Error: No se encontró el archivo '{ruta_dataset}'.")
