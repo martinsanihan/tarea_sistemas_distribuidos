@@ -129,7 +129,7 @@ def api_q2():
 
 if __name__ == '__main__':
     print("Iniciando Generador de Respuestas...")
-    ruta_dataset = 'google_buildings_chile.csv.gz' 
+    ruta_dataset = '967_buildings.csv' 
     
     try:
         # 1. Cargamos el dataset pesado EN MEMORIA una sola vez al arrancar
