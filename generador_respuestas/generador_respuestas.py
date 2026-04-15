@@ -109,35 +109,43 @@ def q5_confidence_dist(zone_id, bins=5):
 app = Flask(__name__)
 
 @app.route('/q1', methods=['GET'])
-def api_q1():
-    # Recibimos los parámetros de la URL (ej: /q1?zone_id=Z1&confidence_min=0.8)
+@app.route('/q3', methods=['GET'])
+def api_q3():
     zone_id = request.args.get('zone_id')
     conf_min = float(request.args.get('confidence_min', 0.0))
     
-    resultado = q1_count(zone_id, conf_min)
-    return jsonify({"consulta": "Q1", "zona": zone_id, "resultado": resultado})
+    # Reemplaza 'q3_density' por el nombre real de tu función para Q3
+    resultado = q3_density(zone_id, conf_min) 
+    return jsonify({"consulta": "Q3", "zona": zone_id, "resultado": resultado})
 
-@app.route('/q2', methods=['GET'])
-def api_q2():
-    zone_id = request.args.get('zone_id')
+@app.route('/q4', methods=['GET'])
+def api_q4():
+    # Q4 recibe dos zonas
+    zone_a = request.args.get('zone_a')
+    zone_b = request.args.get('zone_b')
     conf_min = float(request.args.get('confidence_min', 0.0))
     
-    resultado = q2_area(zone_id, conf_min)
-    return jsonify({"consulta": "Q2", "zona": zone_id, "resultado": resultado})
+    # Reemplaza 'q4_compare' por el nombre real de tu función para Q4
+    resultado = q4_compare(zone_a, zone_b, conf_min)
+    return jsonify({"consulta": "Q4", "zonas": f"{zone_a}_vs_{zone_b}", "resultado": resultado})
 
-# Puedes replicar esta misma lógica para @app.route('/q3'), '/q4' y '/q5'
+@app.route('/q5', methods=['GET'])
+def api_q5():
+    zone_id = request.args.get('zone_id')
+    # Q5 recibe los bins (intervalos)
+    bins = int(request.args.get('bins', 5))
+    
+    # Reemplaza 'q5_confidence_dist' por el nombre real de tu función para Q5
+    resultado = q5_confidence_dist(zone_id, bins)
+    return jsonify({"consulta": "Q5", "zona": zone_id, "resultado": resultado})
 
 if __name__ == '__main__':
     print("Iniciando Generador de Respuestas...")
     ruta_dataset = '967_buildings.csv.gz' 
     
-    try:
-        # 1. Cargamos el dataset pesado EN MEMORIA una sola vez al arrancar
+    try:    
         carga_datos(ruta_dataset)
         print("Datos cargados. Levantando servidor API en el puerto 5000...")
-        
-        # 2. Levantamos el servidor para escuchar peticiones de la caché
-        # host='0.0.0.0' es crucial en Docker para que acepte conexiones externas al contenedor
         app.run(host='0.0.0.0', port=5000)
         
     except FileNotFoundError:
