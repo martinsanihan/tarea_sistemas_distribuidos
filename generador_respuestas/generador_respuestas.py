@@ -109,6 +109,19 @@ def q5_confidence_dist(zone_id, bins=5):
 app = Flask(__name__)
 
 @app.route('/q1', methods=['GET'])
+def api_q1():
+    zone_id = request.args.get('zone_id')
+    conf_min = float(request.args.get('confidence_min', 0.0))
+    resultado = q1_count(zone_id, conf_min) 
+    return jsonify({"consulta": "Q1", "zona": zone_id, "resultado": resultado})
+
+@app.route('/q2', methods=['GET'])
+def api_q2():
+    zone_id = request.args.get('zone_id')
+    conf_min = float(request.args.get('confidence_min', 0.0))
+    
+    resultado = q2_area(zone_id, conf_min) 
+    return jsonify({"consulta": "Q2", "zona": zone_id, "resultado": resultado})
 @app.route('/q3', methods=['GET'])
 def api_q3():
     zone_id = request.args.get('zone_id')
