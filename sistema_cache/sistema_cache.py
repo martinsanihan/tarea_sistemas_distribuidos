@@ -19,6 +19,7 @@ METRICAS_URL = 'http://almacenador_metricas:6000'
 # Tiempo de vida de la caché (TTL) en segundos.
 TIEMPO_TTL = 60 
 
+
 @app.route('/consulta', methods=['GET'])
 def procesar_consulta():
     inicio_tiempo = time.time()
@@ -26,7 +27,8 @@ def procesar_consulta():
     # Recibimos qué consulta es (q1, q2, etc.) y la zona
     tipo_consulta = request.args.get('tipo')
     zone_id = request.args.get('zone_id')
-    conf_min = request.args.get('confidence_min', '0.0')
+    conf_val = float(request.args.get('confidence_min', '0.0')) 
+    conf_min = ": .1f".format(conf_val) 
     
     if tipo_consulta == 'q1':
         cache_key = f"count:{zone_id}:conf={conf_min}"
@@ -76,7 +78,7 @@ def procesar_consulta():
         # Guardamos el resultado en Redis con un TTL
         cache.set(cache_key, json.dumps(datos), ex=TIEMPO_TTL)
 
-        # Guardamos en la variable, pero NO hacemos return todavía
+        # Guardamos en la variable, pero NO hacemos 
         respuesta_final = datos
     
     fin_tiempo = time.time()
@@ -99,4 +101,4 @@ def procesar_consulta():
     
 if __name__ == '__main__':
     print("Iniciando Sistema de Caché interceptor...")
-    app.run(host='0.0.0.0', port=4000) 
+    app.run(host='0.0.0.0', port=4000)  

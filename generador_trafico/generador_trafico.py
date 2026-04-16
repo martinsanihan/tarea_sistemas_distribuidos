@@ -26,7 +26,7 @@ def generar_parametros(distribucion):
         tipo_consulta = random.choice(CONSULTAS)
 
     # Parámetro de confianza aleatorio entre 0.0 y 0.9 (redondeado a 1 decimal)
-    conf_min = round(random.uniform(0.0, 0.9), 1)
+    conf_min = round(random.random(), 1) # Esto genera solo 0.1, 0.2, 0.3...
     
     parametros = {
         "tipo": tipo_consulta,

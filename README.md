@@ -1,2 +1,41 @@
 # tarea_sistemas_distribuidos
 Repositorio dedicado al proyecto del ramo sistemas distribuidos, enfocado en construir una plataforma de consultas y respuestas con sistema de cache, gestión de errores y dashboard de visualización.
+
+
+## Requisitos
+1. instalación de compose linux:
+''' bash
+sudo apt install docker-compose -y
+'''
+
+## Utilización
+1. Para iniciar los contenedores primero utilizar:
+'''bash
+sudo docker compose up --build -d
+'''
+2. Para acceder a los logs internos de los contenedores utilizar:
+Obtiene los nombres de los contenedores
+''' bash
+sudo docker ps
+'''
+
+'''bash
+sudo docker compose logs <nombre contenedor>
+'''
+
+Ejemplo:
+
+'''bash
+sudo docker compose logs almacenador_metricas
+'''
+
+3. Ver el estado actual de las metricas como hits, misses y hitrate
+'''bash
+curl http://localhost:6000/resumen
+'''
+
+4. Ver los registros de las metricas
+'''bash
+curl http://localhost:6000/registros
+'''
+
