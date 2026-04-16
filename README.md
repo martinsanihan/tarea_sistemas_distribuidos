@@ -34,8 +34,8 @@ sudo docker compose logs almacenador_metricas
 curl http://localhost:6000/resumen
 '''
 
-4. Ver los registros de las metricas
+4. Ver los registros de las metricas, un archivo csv
 '''bash
-curl http://localhost:6000/registros
+sudo docker compose cp almacenador_metricas:/app/registro_metricas.csv ./resultados_finales.csv
 '''
 
