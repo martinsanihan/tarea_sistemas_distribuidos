@@ -11,7 +11,7 @@ sudo apt install docker-compose -y
 ## Utilización
 1. Para iniciar los contenedores primero utilizar:
 '''bash
-sudo docker compose up --build -d
+sudo docker compose up -d
 '''
 2. Para acceder a los logs internos de los contenedores utilizar:
 Obtiene los nombres de los contenedores
@@ -39,3 +39,4 @@ curl http://localhost:6000/resumen
 sudo docker compose cp almacenador_metricas:/app/registro_metricas.csv ./resultados_finales.csv
 '''
 
+en el archivo docker-compose.yml cambiar la distribucion del trafico y la tasa de espera, al bajar ese valor aumenta la cantidad de peticiones por segundo

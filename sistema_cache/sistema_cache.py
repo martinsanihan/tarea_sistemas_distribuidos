@@ -17,7 +17,7 @@ RESPUESTAS_URL = 'http://generador_respuestas:5000'
 METRICAS_URL = 'http://almacenador_metricas:6000'
 
 # Tiempo de vida de la caché (TTL) en segundos.
-TIEMPO_TTL = 60 
+TIEMPO_TTL = 2 
 
 
 @app.route('/consulta', methods=['GET'])
