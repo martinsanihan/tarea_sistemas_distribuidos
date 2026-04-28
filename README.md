@@ -9,9 +9,17 @@ sudo apt install docker-compose -y
 ```
 
 ## Utilización
+Para eliminar configuraciones ya hechas
+```bash
+sudo docker compose down
+rm almacenador_metricas/registro_metricas.csv
+sudo docker volume prune -f
+'''
+
+
 1. Para iniciar los contenedores primero utilizar:
 ```bash
-sudo docker compose up -d
+sudo docker compose up --build -d
 '''
 2. Para acceder a los logs internos de los contenedores utilizar:
 Obtiene los nombres de los contenedores
