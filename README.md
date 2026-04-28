@@ -13,7 +13,14 @@ sudo apt install docker-compose -y
 '''bash
 sudo docker compose up -d
 '''
-2. Para acceder a los logs internos de los contenedores utilizar:
+2. Para eliminar los contenedores y reiniciar (prune sirve para vaciar el redis por completo)
+'''bash
+sudo docker compose down
+rm almacenador_metricas/registro_metricas.csv
+sudo docker volume prune -f
+'''
+
+3. Para acceder a los logs internos de los contenedores utilizar:
 Obtiene los nombres de los contenedores
 ''' bash
 sudo docker ps
@@ -29,12 +36,12 @@ Ejemplo:
 sudo docker compose logs almacenador_metricas
 '''
 
-3. Ver el estado actual de las metricas como hits, misses y hitrate
+4. Ver el estado actual de las metricas como hits, misses y hitrate
 '''bash
 curl http://localhost:6000/resumen
 '''
 
-4. Ver los registros de las metricas, un archivo csv
+5. Ver los registros de las metricas, un archivo csv
 '''bash
 sudo docker compose cp almacenador_metricas:/app/registro_metricas.csv ./resultados_finales.csv
 '''
