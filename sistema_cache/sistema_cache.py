@@ -28,8 +28,8 @@ def procesar_consulta():
     tipo_consulta = request.args.get('tipo')
     zone_id = request.args.get('zone_id')
     conf_val = float(request.args.get('confidence_min', '0.0')) 
-    conf_min = ": .1f".format(conf_val) 
-    
+    conf_min = "{:.1f}".format(conf_val)
+     
     if tipo_consulta == 'q1':
         cache_key = f"count:{zone_id}:conf={conf_min}"
         url_destino = f"{RESPUESTAS_URL}/q1?zone_id={zone_id}&confidence_min={conf_min}"

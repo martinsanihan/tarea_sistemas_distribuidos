@@ -1,2 +1,4 @@
 *.csv.gz
 967_buildings.csv.gz
+*.csv
+967_buildings.csv
