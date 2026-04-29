@@ -12,7 +12,7 @@ sudo apt install docker-compose -y
 Para eliminar configuraciones ya hechas
 ```bash
 sudo docker compose down
-rm almacenador_metricas/registro_metricas.csv
+rm resultados_finales.csv
 sudo docker volume prune -f
 ```
 
@@ -46,4 +46,33 @@ curl http://localhost:6000/resumen
 ```bash
 sudo docker compose cp almacenador_metricas:/app/registro_metricas.csv ./resultados_finales.csv
 ```
-en el archivo docker-compose.yml cambiar la distribucion del trafico y la tasa de espera, al bajar ese valor aumenta la cantidad de peticiones por segundo
+
+## Para el analisis
+Debe situarse en el archivo *docker-compose.yml*
+
+Para modifircar el tiempo de distribución cambiar el parámetro *DISTRIBUCIÓN* con "uniforme" o "zipf".
+
+Para cambiar la tasa de peticiones por segundo modificar el parámetro *TASA_ESPERA*, 0.01 equivale a 100 consultas por segundo aprox. Un valor más bajo estresa más  el sistema.
+en el apartado de:
+   generador_trafico:
+    build: ./generador_trafico
+    container_name: generador_trafico
+    depends_on:
+      - sistema_cache
+    environment:
+      - DISTRIBUCION=uniforme  
+      - TASA_ESPERA=0.01       
+
+Para modificar el tamaño del caché modificar el campo *--maxmemory Xmb* y para elegir una política de remplazo distinta cambiar el campo *-maxmemory-policy XXXX* por ejemplo *allkeys-lfu*
+
+En el apartado:
+cache_redis:
+    image: redis:latest
+    container_name: cache_redis
+    ports:
+      - "6379:6379"
+    # Aquí ya configuramos las políticas (LRU y 50mb)
+    command: redis-server --maxmemory 50mb --maxmemory-policy allkeys-lru #Cambiar la politica de remplazo para el analisis 
+
+  
+
