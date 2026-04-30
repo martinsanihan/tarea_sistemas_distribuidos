@@ -17,7 +17,7 @@ RESPUESTAS_URL = 'http://generador_respuestas:5000'
 METRICAS_URL = 'http://almacenador_metricas:6000'
 
 # Tiempo de vida de la caché (TTL) en segundos.
-TIEMPO_TTL = 2 
+TIEMPO_TTL = 10
 
 
 @app.route('/consulta', methods=['GET'])
@@ -72,6 +72,19 @@ def procesar_consulta():
     else:
         evento = "MISS"
         print(f"MISS en Caché para: {cache_key}. Consultando al Generador...")
+
+        try:
+            respuesta = requests.get(url_destino, timeout=10)
+            respuesta.raise_for_status() # Asegura que fue un código 200
+            datos = respuesta.json()
+            
+            # Guardamos el resultado en Redis con un TTL
+            cache.set(cache_key, json.dumps(datos), ex=TIEMPO_TTL)
+            respuesta_final = datos
+        except requests.exceptions.RequestException as e:
+            print(f"Error al conectar con el Generador de Respuestas: {e}")
+            return jsonify({"error": "No se pudo obtener la respuesta del generador"}), 503
+        
         respuesta = requests.get(url_destino)
         datos = respuesta.json()
 

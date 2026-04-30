@@ -20,13 +20,14 @@ def generar_parametros(distribucion):
         # Simula que todos prefieren consultar la misma zona y la misma query
         zona_principal = np.random.choice(ZONAS, p=probabilidades_zipf)
         tipo_consulta = np.random.choice(CONSULTAS, p=probabilidades_zipf)
+        conf_min = 0.5 if random.random() < 0.8 else round(random.random(), 1)
     else:
         # Distribución uniforme: todo es totalmente aleatorio
         zona_principal = random.choice(ZONAS)
         tipo_consulta = random.choice(CONSULTAS)
+        # Parámetro de confianza aleatorio entre 0.0 y 0.9 (redondeado a 1 decimal)
+        conf_min = round(random.random(), 1) # Esto genera solo 0.1, 0.2, 0.3...
 
-    # Parámetro de confianza aleatorio entre 0.0 y 0.9 (redondeado a 1 decimal)
-    conf_min = round(random.random(), 1) # Esto genera solo 0.1, 0.2, 0.3...
     
     parametros = {
         "tipo": tipo_consulta,
@@ -47,15 +48,15 @@ def generar_parametros(distribucion):
 
 def iniciar():
     # Leemos la variable de entorno para saber qué distribución usar (por defecto uniforme)
-    distribucion = os.environ.get("DISTRIBUCION", "uniforme").lower()
-    tasa_espera = float(os.environ.get("TASA_ESPERA", "0.5")) # Segundos entre cada petición
+    distribucion = "zipf"
+    tasa_espera = 0.01
     
     print(f" Iniciando Generador de Tráfico...")
     print(f"Distribución: {distribucion.upper()}")
     print(f"Enviando 1 petición cada {tasa_espera} segundos.\n")
     
     # Damos 5 segundos para asegurar que el sistema de caché y respuestas ya levantaron
-    time.sleep(5) 
+    # time.sleep(5) 
     
     while True:
         params = generar_parametros(distribucion)

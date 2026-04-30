@@ -17,7 +17,16 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - cache_redis 
+      - cache_redis
+    volumes:
+      - ./967_buildings.csv.gz:/app/967_buildings.csv.gz
+    healthcheck:
+      # Hace un ping al endpoint /q1 usando una librería nativa de Python
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:5000/q1\")' || exit 1"]
+      interval: 5s       # Cada 10 segundos revisa si ya levantó
+      timeout: 5s         # Espera máximo 5 segundos por el intento
+      retries: 15         # Intenta hasta 15 veces (150 segundos de paciencia)
+      start_period: 5s   # Espera 15s de gracia antes de empezar a chequear
 
   # (API Flask)
   sistema_cache:
@@ -26,9 +35,12 @@ services:
     ports:
       - "4000:4000" # Exponemos el puerto 4000 
     depends_on:
-      - cache_redis
-      - generador_respuestas 
-      - almacenador_metricas
+      cache_redis:
+        condition: service_started
+      almacenador_metricas:
+        condition: service_started
+      generador_respuestas:
+        condition: service_healthy
   # El recolector de estadísticas
   almacenador_metricas:
     build: ./almacenador_metricas
@@ -42,6 +54,6 @@ services:
     depends_on:
       - sistema_cache
     environment:
-      - DISTRIBUCION=uniforme      # Cambiar "distribución" con el valor (zipf o uniforme) para cambiar distribución de tráfico
+      - DISTRIBUCION="zipf"      # Cambiar "distribución" con el valor (zipf o uniforme) para cambiar distribución de tráfico
       - TASA_ESPERA=0.01        # 0.1 significa 10 peticiones por segundo. bajar este punto estresa más al sistema. subirlo lo hace más relajado.
   
