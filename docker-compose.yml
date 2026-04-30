@@ -1,0 +1,59 @@
+# version: '3.8'
+
+services:
+  # El motor de almacenamiento (Redis)
+  cache_redis:
+    image: redis:latest
+    container_name: cache_redis
+    ports:
+      - "6379:6379"
+    # Aquí ya configuramos las políticas (LRU y 50mb)
+    command: redis-server --maxmemory 50mb --maxmemory-policy allkeys-lru 
+
+  # El motor de cálculo pesado (API Flask)
+  generador_respuestas:
+    build: ./generador_respuestas  # Le dice a Docker que busque el Dockerfile en esa carpeta
+    container_name: generador_respuestas
+    ports:
+      - "5000:5000"
+    depends_on:
+      - cache_redis
+    volumes:
+      - ./967_buildings.csv.gz:/app/967_buildings.csv.gz
+    healthcheck:
+      # Hace un ping al endpoint /q1 usando una librería nativa de Python
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:5000/q1\")' || exit 1"]
+      interval: 5s       # Cada 10 segundos revisa si ya levantó
+      timeout: 5s         # Espera máximo 5 segundos por el intento
+      retries: 15         # Intenta hasta 15 veces (150 segundos de paciencia)
+      start_period: 5s   # Espera 15s de gracia antes de empezar a chequear
+
+  # (API Flask)
+  sistema_cache:
+    build: ./sistema_cache 
+    container_name: sistema_cache
+    ports:
+      - "4000:4000" # Exponemos el puerto 4000 
+    depends_on:
+      cache_redis:
+        condition: service_started
+      almacenador_metricas:
+        condition: service_started
+      generador_respuestas:
+        condition: service_healthy
+  # El recolector de estadísticas
+  almacenador_metricas:
+    build: ./almacenador_metricas
+    container_name: almacenador_metricas
+    ports:
+      - "6000:6000"
+  # El generador de tráfico    
+  generador_trafico:
+    build: ./generador_trafico
+    container_name: generador_trafico
+    depends_on:
+      - sistema_cache
+    environment:
+      - DISTRIBUCION="zipf"      # Cambiar "distribución" con el valor (zipf o uniforme) para cambiar distribución de tráfico
+      - TASA_ESPERA=0.01        # 0.1 significa 10 peticiones por segundo. bajar este punto estresa más al sistema. subirlo lo hace más relajado.
+  
