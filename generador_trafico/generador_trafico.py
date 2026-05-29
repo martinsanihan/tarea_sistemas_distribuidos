@@ -47,9 +47,11 @@ def generar_parametros(distribucion):
     return parametros
 
 def iniciar():
+    print(os.environ)
+
     # Leemos la variable de entorno para saber qué distribución usar (por defecto uniforme)
-    distribucion = "zipf"
-    tasa_espera = 0.01
+    distribucion = str(os.environ['DISTRIBUCION'])
+    tasa_espera = float(os.environ['TASA_ESPERA'])
     
     print(f" Iniciando Generador de Tráfico...")
     print(f"Distribución: {distribucion.upper()}")

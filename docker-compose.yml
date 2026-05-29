@@ -54,6 +54,6 @@ services:
     depends_on:
       - sistema_cache
     environment:
-      - DISTRIBUCION="zipf"      # Cambiar "distribución" con el valor (zipf o uniforme) para cambiar distribución de tráfico
+      - DISTRIBUCION=zipf      # Cambiar "distribución" con el valor (zipf o uniforme) para cambiar distribución de tráfico
       - TASA_ESPERA=0.01        # 0.1 significa 10 peticiones por segundo. bajar este punto estresa más al sistema. subirlo lo hace más relajado.
   
