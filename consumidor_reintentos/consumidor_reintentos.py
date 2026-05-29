@@ -34,7 +34,7 @@ def conectar_kafka():
 consumer, producer = conectar_kafka()
 
 def intentar_procesar(datos):
-    # Pausa iterativa para no bombardear un sistema caído (Backoff exponencial simple)
+    # Pausa iterativa para no bombardear un sistema caído (Backoff exponencial simple) .-.-..-
     time.sleep(2 * datos['retry_count'])
     # time.sleep(0.5)
     
