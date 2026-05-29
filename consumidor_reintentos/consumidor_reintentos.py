@@ -36,6 +36,7 @@ consumer, producer = conectar_kafka()
 def intentar_procesar(datos):
     # Pausa iterativa para no bombardear un sistema caído (Backoff exponencial simple)
     time.sleep(2 * datos['retry_count'])
+    # time.sleep(0.5)
     
     tipo_consulta = datos.get('tipo')
     zone_id = datos.get('zone_id', datos.get('zone_a', ''))
@@ -89,7 +90,7 @@ def intentar_procesar(datos):
 
     except requests.exceptions.RequestException as e:
         if datos['retry_count'] >= MAX_RETRIES:
-            print(f"[DLQ] Consulta falló {MAX_RETRIES} veces. Enviando a Dead Letter Queue.")
+            print(f"[DLQ] Consulta {datos.get('id_consulta')} falló {MAX_RETRIES} veces. Enviando a Dead Letter Queue.")
             producer.send('topic_dlq', value=datos)
             requests.post(f"{METRICAS_URL}/registrar", json={
                 "tipo_evento": "DLQ",
@@ -98,7 +99,7 @@ def intentar_procesar(datos):
                 "latencia_ms": 0
             }, timeout=1)
         else:
-            print(f"[REINTENTO] Falla en intento {datos['retry_count']}. Reencolando...")
+            print(f"[REINTENTO] {datos.get('id_consulta')} Falla en intento {datos['retry_count']}. Reencolando...")
             datos['retry_count'] += 1
             producer.send('topic_reintento', value=datos)
 

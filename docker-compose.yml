@@ -55,7 +55,8 @@ services:
       - sistema_cache
     environment:
       - DISTRIBUCION=zipf      # Cambiar "distribución" con el valor (zipf o uniforme) para cambiar distribución de tráfico
-      - TASA_ESPERA=0.01        # 0.1 significa 10 peticiones por segundo. bajar este punto estresa más al sistema. subirlo lo hace más relajado.
+      - TASA_ESPERA=1        # 0.1 significa 10 peticiones por segundo. bajar este punto estresa más al sistema. subirlo lo hace más relajado.
+      - PYTHONUNBUFFERED=1
   kafka:
     image: apache/kafka:latest
     container_name: kafka
@@ -80,9 +81,13 @@ services:
       - generador_respuestas
     deploy:
       replicas: 1
+    environment:
+      - PYTHONUNBUFFERED=1
   consumidor_reintentos:
     build: ./consumidor_reintentos
     depends_on:
       - kafka
       - generador_respuestas
+    environment:
+      - PYTHONUNBUFFERED=1
     
