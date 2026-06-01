@@ -85,7 +85,7 @@ def procesar_mensaje(mensaje):
         print(f"MISS en Caché para: {cache_key}. Consultando al Generador...")
         try:
             # Simulamos el procesamiento
-            respuesta = requests.get(url_destino, timeout=5)
+            respuesta = requests.get(url_destino, timeout=1)
             respuesta.raise_for_status()
             
             # Éxito: Guardar en caché y registrar métrica

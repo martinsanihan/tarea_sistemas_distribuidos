@@ -35,8 +35,8 @@ consumer, producer = conectar_kafka()
 
 def intentar_procesar(datos):
     # Pausa iterativa para no bombardear un sistema caído (Backoff exponencial simple) .-.-..-
-    time.sleep(2 * datos['retry_count'])
-    # time.sleep(0.5)
+    #time.sleep(2 * datos['retry_count'])
+    time.sleep(0.2)
     
     tipo_consulta = datos.get('tipo')
     zone_id = datos.get('zone_id', datos.get('zone_a', ''))
@@ -75,7 +75,7 @@ def intentar_procesar(datos):
     url_destino = f"{RESPUESTAS_URL}/{tipo_consulta}?zone_id={zone_id}&confidence_min={conf_min}"
     
     try:
-        respuesta = requests.get(url_destino, timeout=5)
+        respuesta = requests.get(url_destino, timeout=1)
         respuesta.raise_for_status()
         
         # Si tiene éxito tras reintentar, notificamos la recuperación
