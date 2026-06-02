@@ -22,8 +22,9 @@ sudo docker volume prune -f
 ### Ejecución y Monitoreo
 
 1. **Iniciar los contenedores:**
+Para modificar el escalamiento horizontal se modifica el campo del comando *(Consumidores_kafka)* con un número entero positivo.
 ```bash
-sudo docker compose up --build -d
+ssudo docker compose up --build --scale consumidores_kafka=1 -d
 ```
 
 2. **Acceder a los logs internos:**
@@ -37,7 +38,7 @@ sudo docker compose logs -f <nombre_del_contenedor>
 ```
 *Ejemplo:*
 ```bash
-sudo docker compose logs almacenador_metricas
+sudo docker compose logs -f consumidores_kafka consumidor_reintentos
 ```
 
 3. **Ver el estado actual de las métricas:**
@@ -46,7 +47,13 @@ Para consultar las estadisticas *hits*, *misses* y el *hit rate* en el instante 
 curl http://localhost:6000/resumen
 ```
 
-4. **Extraer los registros (CSV):**
+4. **Monitoreo del Backlog (LAG) en kafka**
+Para observar en tiempo real cuántos mensajes están atrapados en la cola esperando ser procesados por el grupo de consumo principal, ejecuta:
+```bash
+sudo docker exec -it kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group grupo_consumidores_udp
+```
+
+5. **Extraer los registros (CSV):**
 Para copiar el archivo de métricas desde el contenedor hacia tu máquina local:
 ```bash
 sudo docker compose cp almacenador_metricas:/app/registro_metricas.csv ./resultados_finales.csv
@@ -82,6 +89,12 @@ Para cambiar el comportamiento de la memoria caché, se debe modificar la instru
 *   `--maxmemory`: Cambia el límite de memoria (ej. `50mb`, `200mb`, `500mb`).
 *   `--maxmemory-policy`: Cambia el algoritmo de desalojo (ej. `allkeys-lru`, `allkeys-lfu`, `allkeys-random`).
 
+El proyecto viene configurado con lo siguiente parámetros:
+*   `--maxmemory: 50mb`
+*   `--maxmemory-policy: allkeys-lru`
+*   `TIEMPO_TTL = 10`
+
+
 **Bloque en `docker-compose.yml`:**
 ```yaml
   cache_redis:
@@ -101,7 +114,7 @@ Ademas dentro del archivo `./sistema_cache/sistema_cache.py` se puede modificar 
 
 18
 19  # Tiempo de vida de la caché (TTL) en segundos.
-20  TIEMPO_TTL = 2 
+20  TIEMPO_TTL = 10
 21
 
 # Código...
