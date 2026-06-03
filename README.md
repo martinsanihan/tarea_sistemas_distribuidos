@@ -24,7 +24,7 @@ sudo docker volume prune -f
 1. **Iniciar los contenedores:**
 Para modificar el escalamiento horizontal se modifica el campo del comando *(Consumidores_kafka)* con un número entero positivo.
 ```bash
-ssudo docker compose up --build --scale consumidores_kafka=1 -d
+sudo docker compose up --build --scale consumidores_kafka=1 -d
 ```
 
 2. **Acceder a los logs internos:**
