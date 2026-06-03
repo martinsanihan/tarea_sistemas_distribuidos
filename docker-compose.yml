@@ -28,35 +28,22 @@ services:
       retries: 15         # Intenta hasta 15 veces (150 segundos de paciencia)
       start_period: 5s   # Espera 15s de gracia antes de empezar a chequear
 
-  # (API Flask)
-  sistema_cache:
-    build: ./sistema_cache 
-    container_name: sistema_cache
-    ports:
-      - "4000:4000" # Exponemos el puerto 4000 
-    depends_on:
-      cache_redis:
-        condition: service_started
-      almacenador_metricas:
-        condition: service_started
-      generador_respuestas:
-        condition: service_healthy
   # El recolector de estadísticas
   almacenador_metricas:
     build: ./almacenador_metricas
     container_name: almacenador_metricas
     ports:
       - "6000:6000"
+
   # El generador de tráfico    
   generador_trafico:
     build: ./generador_trafico
     container_name: generador_trafico
-    depends_on:
-      - sistema_cache
     environment:
-      - DISTRIBUCION=zipf      # Cambiar "distribución" con el valor (zipf o uniforme) para cambiar distribución de tráfico
-      - TASA_ESPERA=1        # 0.1 significa 10 peticiones por segundo. bajar este punto estresa más al sistema. subirlo lo hace más relajado.
+      - DISTRIBUCION=zipf     # Cambiar "distribución" con el valor (zipf o uniforme) para cambiar distribución de tráfico
+      - TASA_ESPERA=2       # 0.1 significa 10 peticiones por segundo. bajar este punto estresa más al sistema. subirlo lo hace más relajado.
       - PYTHONUNBUFFERED=1
+
   kafka:
     image: apache/kafka:latest
     container_name: kafka
@@ -73,6 +60,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
   consumidores_kafka:
     build: ./consumidor_kafka
     depends_on:
@@ -80,14 +68,14 @@ services:
       - cache_redis
       - generador_respuestas
     deploy:
-      replicas: 1
+      replicas: 5
     environment:
       - PYTHONUNBUFFERED=1
+
   consumidor_reintentos:
     build: ./consumidor_reintentos
     depends_on:
       - kafka
-      - generador_respuestas
     environment:
       - PYTHONUNBUFFERED=1
     
